@@ -57,8 +57,12 @@ class Crawler(object):
         ''' Visits a url, and processes its links (if they are new) '''
         print "Visiting %s" % url
         self.browser.load(url)
-        self.browser.wait_load(self.timeout)
-        # self.browser.wait_a_little(self.timeout)  # to force the wait.
+        try:
+            self.browser.wait_load(self.timeout)
+        except spynner.SpynnerTimeout:
+            print "Timed out while waiting for the page to complete execution. That's ok."
+            self.browser.wait_a_little(self.timeout)  # to force the wait, while
+                                                      # JS events happen.
         for a in self.browser.soup('a'):
             a.make_links_absolute(base_url=self.browser.url)
             link = a.attrib['href']
